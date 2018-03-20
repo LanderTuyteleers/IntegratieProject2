@@ -306,4 +306,29 @@ public class ThemeRestController {
             return ResponseEntity.notFound().build();
         }
     }
+    
+    @GetMapping(value = "/api/private/users/{username}/connectedthemes")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity getConnectedThemes(@PathVariable String username, HttpServletRequest request){
+        User requestUser = userService.findUserByUsername(username);
+
+        if (!authenticationHelperService.userIsAllowedToAccessResource(request, username)){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        };
+
+        if(requestUser == null){
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+
+        List<ThemeJpa> themeJpas = new ArrayList<>();
+        for(GameSession gameSession : gameSessionService.getUserGameSessions(username)){
+            themeJpas.add(gameSession.getThemeForSession());
+        }
+
+        return ResponseEntity.ok(themeJpas);
+    }
+
+    
+    
+    
 }
