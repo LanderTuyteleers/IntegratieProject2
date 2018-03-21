@@ -243,7 +243,7 @@ public class ThemeRestController {
 
 
     @GetMapping("/api/private/users/{username}/connectedthemes")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity getConnectedThemes(@PathVariable String username, HttpServletRequest request){
         User requestUser = userService.findUserByUsername(username);
 
