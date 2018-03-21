@@ -76,7 +76,7 @@ public class TestThemeRestController {
 
     @Before
     public void init() {
-        controller = new ThemeRestController(new ThemeRepoMock());
+        //controller = new ThemeRestController(new ThemeRepoMock());
         theme1 = new ThemeDto(0, "School", "TestTheme Everything to do with school");
         theme2 = new ThemeDto(0, "Industry", "TestTheme Everything to do with Industry");
 

@@ -1,7 +1,10 @@
 package be.kdg.kandoe.domain.theme;
 
 
+import be.kdg.kandoe.dto.theme.ThemeDto;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Theme {
     private long themeId;
@@ -12,6 +15,13 @@ public class Theme {
 
     public Theme() {
 
+    }
+
+    public Theme(ThemeDto themeDto){
+        this.themeId=themeDto.getThemeId();
+        this.name=themeDto.getName();
+        this.description=themeDto.getDescription();
+        this.subThemes=themeDto.getSubThemes().stream().map(st->st.toSubTheme()).collect(Collectors.toList());
     }
 
     public String getName() {

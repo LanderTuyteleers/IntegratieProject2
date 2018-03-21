@@ -50,6 +50,14 @@ public abstract class DtoConverter {
         return theme;
     }
 
+    public static ThemeDto toThemeDto(Theme theme){
+        ThemeDto newDto = new ThemeDto();
+        newDto.setThemeId(theme.getThemeId());
+        newDto.setName(theme.getName());
+        newDto.setDescription(theme.getDescription());
+        return newDto;
+    }
+
     /**
      * @param subTheme
      * @param callByConverter Defines if method is called by Convertor itself, to prevent stackOverflow.

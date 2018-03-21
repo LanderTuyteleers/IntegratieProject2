@@ -1,11 +1,7 @@
 package be.kdg.kandoe.dto.theme;
 
-import be.kdg.kandoe.domain.theme.SubTheme;
-import be.kdg.kandoe.dto.converter.DtoConverter;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class CardDto {
     private long cardId;

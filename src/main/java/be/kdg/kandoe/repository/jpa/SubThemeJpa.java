@@ -1,10 +1,5 @@
 package be.kdg.kandoe.repository.jpa;
 
-import be.kdg.kandoe.domain.theme.Theme;
-import be.kdg.kandoe.dto.converter.DtoConverter;
-import be.kdg.kandoe.repository.jpa.converter.JpaConverter;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 

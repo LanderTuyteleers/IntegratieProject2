@@ -1,9 +1,11 @@
 package be.kdg.kandoe.dto.theme;
 
+import be.kdg.kandoe.domain.theme.Theme;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Mediate Object-class to translate JSON-objects to Theme-objects
@@ -62,5 +64,22 @@ public class ThemeDto {
     public String toJsonString() {
         String JSON = new Gson().toJson(this);
         return JSON;
+    }
+
+    public Theme toTheme(){
+        Theme theme = new Theme();
+        theme.setDescription(this.description);
+        theme.setThemeId(this.themeId);
+
+        theme.setName(this.getName());
+        return theme;
+    }
+
+    public static ThemeDto fromTheme(Theme theme){
+        ThemeDto newThemeDto =  new ThemeDto(theme.getThemeId(),theme.getName(),theme.getDescription());
+        if(theme.getSubThemes()!=null){
+            newThemeDto.setSubThemes(theme.getSubThemes().stream().map(st-> SubThemeDto.fromSubTheme(st)).collect(Collectors.toList()));
+        }
+        return newThemeDto;
     }
 }

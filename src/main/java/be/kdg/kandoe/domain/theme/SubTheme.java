@@ -15,6 +15,17 @@ public class SubTheme {
     public SubTheme() {
     }
 
+    public SubTheme(SubThemeDto dto){
+        this.subThemeId=dto.getSubThemeId();
+        this.subThemeName=dto.getSubThemeName();
+        this.subThemeDescription=dto.getSubThemeDescription();
+        if(dto.getTheme()!=null){
+            this.theme=dto.getTheme().toTheme();
+        }else{
+            this.theme=null;
+        }
+    }
+
     public long getSubThemeId() {
         return subThemeId;
     }

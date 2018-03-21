@@ -1,24 +1,29 @@
 package be.kdg.kandoe.controller.rest;
 
-import be.kdg.kandoe.domain.theme.Card;
+import be.kdg.kandoe.domain.GameSession;
 import be.kdg.kandoe.domain.theme.SubTheme;
 import be.kdg.kandoe.domain.theme.Theme;
+import be.kdg.kandoe.domain.user.User;
 import be.kdg.kandoe.dto.converter.DtoConverter;
-import be.kdg.kandoe.dto.theme.CardDto;
 import be.kdg.kandoe.dto.theme.SubThemeDto;
 import be.kdg.kandoe.dto.theme.ThemeDto;
-import be.kdg.kandoe.repository.declaration.ThemeRepository;
+import be.kdg.kandoe.repository.jpa.ThemeJpa;
+import be.kdg.kandoe.service.declaration.AuthenticationHelperService;
+import be.kdg.kandoe.service.declaration.GameSessionService;
 import be.kdg.kandoe.service.declaration.ThemeService;
-import be.kdg.kandoe.service.exception.ThemeRepositoryException;
-import be.kdg.kandoe.service.implementation.ThemeServiceImpl;
+import be.kdg.kandoe.service.declaration.UserService;
+import be.kdg.kandoe.service.exception.ThemeServiceException;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
-import org.springframework.http.HttpMethod;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,119 +33,115 @@ public class ThemeRestController {
 
     private ThemeService themeService;
 
-    public ThemeRestController(ThemeRepository repository) {
-        this.themeService = new ThemeServiceImpl(repository);
+    @Autowired
+    private AuthenticationHelperService authenticationHelperService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private GameSessionService gameSessionService;
+
+    public ThemeRestController(ThemeService themeService){
+        this.themeService=themeService;
     }
 
     @RequestMapping(value = "api/public/themes", method = RequestMethod.GET)
-    public ResponseEntity<List<ThemeDto>> getAllThemes() {
+    //   @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<List<ThemeDto>> getAllThemes(){
         System.out.println("CALL RECEIVED: getAllThemes");
-        List<Theme> allThemes = themeService.getAllThemes();
-        return ResponseEntity.ok().body(allThemes.stream().map(t -> DtoConverter.toThemeDto(t, false)).collect(Collectors.toList()));
+        List<Theme> allThemes =themeService.getAllThemes();
+        return ResponseEntity.ok().body(allThemes.stream().map(t-> DtoConverter.toThemeDto(t)).collect(Collectors.toList()));
     }
 
     //GET-METHODS
 
-    @RequestMapping(value = "api/public/theme/{themeId}", method = RequestMethod.GET)
-    public ResponseEntity<ThemeDto> getThemeById(@PathVariable Long themeId) {
-        System.out.println("CALLED RECEIVED: getThemeById: " + themeId);
+    @RequestMapping(value= "api/public/theme/{themeId}", method = RequestMethod.GET)
+//    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<ThemeDto> getThemeById(@PathVariable Long themeId){
+        System.out.println("CALLED RECEIVED: getThemeById: "+themeId);
         Theme theme;
-        try {
+        try{
             theme = themeService.getThemeById(themeId);
-        } catch (ThemeRepositoryException e) {
+        }catch (ThemeServiceException e){
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok().body(DtoConverter.toThemeDto(theme, false));
+        return ResponseEntity.ok().body(ThemeDto.fromTheme(theme));
     }
 
-    @RequestMapping(value = "api/public/subthemes", method = RequestMethod.GET)
-    public ResponseEntity<List<SubThemeDto>> getAllSubThemes() {
+    @RequestMapping(value = "api/public/subthemes",method = RequestMethod.GET)
+    //  @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<List<SubThemeDto>> getAllSubThemes(){
         System.out.println("CALL RECEIVED: getAllSubThemes");
         List<SubTheme> subThemes = themeService.getAllSubThemes();
-        return ResponseEntity.ok().body(subThemes.stream().map(st -> DtoConverter.toSubThemeDto(st, false)).collect(Collectors.toList()));
+        return ResponseEntity.ok().body(subThemes.stream().map(st-> SubThemeDto.fromSubTheme(st)).collect(Collectors.toList()));
     }
 
-    @RequestMapping(value = "api/public/theme", method = RequestMethod.GET)
-    public ResponseEntity<ThemeDto> getThemeByName(@RequestParam(name = "name") String name) {
-        System.out.println("CALL RECEIVED: getThemeByName: " + name);
+    @RequestMapping(value= "api/public/theme", method = RequestMethod.GET)
+//    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<ThemeDto> getThemeByName(@RequestParam(name = "name") String name){
+        System.out.println("CALL RECEIVED: getThemeByName: "+name);
         Theme theme = themeService.getThemeByName(name);
-        if (theme != null) {
-            return ResponseEntity.ok().body(DtoConverter.toThemeDto(theme, false));
-        } else {
+        if(theme !=null){
+            return ResponseEntity.ok().body(ThemeDto.fromTheme(theme));
+        }else{
             return ResponseEntity.notFound().build();
         }
     }
 
-    @RequestMapping(value = "api/public/subtheme/{subThemeId}", method = RequestMethod.GET)
-    public ResponseEntity<SubThemeDto> getSubThemeById(@PathVariable(name = "subThemeId") long subThemeId) {
-        System.out.println("CALL RECEIVED: getSubThemeById: " + subThemeId);
+    @RequestMapping(value = "api/public/subtheme/{subThemeId}",method = RequestMethod.GET)
+    // @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<SubThemeDto> getSubThemeById(@PathVariable(name = "subThemeId")Long subThemeId){
+        System.out.println("CALL RECEIVED: getSubThemeById: "+subThemeId);
         SubTheme subTheme = themeService.getSubThemeById(subThemeId);
-        if (subTheme == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok().body(DtoConverter.toSubThemeDto(subTheme, false));
-    }
-
-    @RequestMapping(value = "api/public/theme/{themeId}/subthemes", method = RequestMethod.GET)
-    public ResponseEntity<List<SubThemeDto>> getSubThemesByThemeId(@PathVariable(name = "themeId") long themeId) {
-        System.out.println("CALL RECEIVED: getSubThemesByThemeId: " + themeId);
-        try {
-            List<SubTheme> subThemes = themeService.getSubThemesByThemeId(themeId);
-            return ResponseEntity.ok().body(subThemes.stream().map(st -> DtoConverter.toSubThemeDto(st, false)).collect(Collectors.toList()));
-        } catch (ThemeRepositoryException te) {
-            te.printStackTrace();
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @RequestMapping(value = "api/public/subtheme/{subThemeId}/cards", method = RequestMethod.GET)
-    public ResponseEntity<List<CardDto>> getCardsBySubThemeId(@PathVariable(name = "subThemeId") long subThemeId) {
-        try {
-            List<Card> cards = themeService.getCardsBySubthemeId(subThemeId);
-            return ResponseEntity.ok().body(cards.stream().map(c -> DtoConverter.toCardDto(c, false)).collect(Collectors.toList()));
-        } catch (ThemeRepositoryException te) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
-    }
-
-    @RequestMapping(value = "api/public/theme/{themeId}/subtheme/{subThemeId}", method= RequestMethod.GET)
-    public ResponseEntity<SubThemeDto> getSingleSubThemeByThemeId(@PathVariable(name="themeId")long themeId, @PathVariable(name = "subThemeId")long subThemeId){
-        System.out.println("CALL RECEIVED: getSingleSubThemeByThemeId: THEME "+themeId+" SUBTHEME: "+subThemeId);
-        SubTheme subTheme = themeService.getSingleSubThemeByThemeId(themeId, subThemeId);
         if(subTheme==null){
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok().body(DtoConverter.toSubThemeDto(subTheme, false));
+        return ResponseEntity.ok().body(SubThemeDto.fromSubTheme(subTheme));
+    }
+
+    @RequestMapping(value = "api/public/theme/{themeId}/subthemes", method= RequestMethod.GET)
+    //  @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<List<SubThemeDto>> getSubThemesByThemeId(@RequestParam(name="themeId")Long themeId){
+        System.out.println("CALL RECEIVED: getSubThemesByThemeId: "+themeId);
+        List<SubTheme> subThemes = themeService.getSubThemesByThemeId(themeId);
+        if(subThemes==null){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().body(subThemes.stream().map(s-> SubThemeDto.fromSubTheme(s)).collect(Collectors.toList()));
     }
 
     //GET-METHODS
     //POST-METHODS
     @RequestMapping(value = "api/public/themes", method = RequestMethod.POST)
-    public ResponseEntity<ThemeDto> CreateTheme(@Valid @RequestBody ThemeDto themeDto) {
+    //   @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<ThemeDto> CreateTheme(@Valid @RequestBody ThemeDto themeDto){
         System.out.println("CALL RECEIVED: CreateTheme");
-        logger.log(Priority.INFO, "API CALL: CreateTheme");
-        Theme createdTheme = themeService.addTheme(DtoConverter.toTheme(themeDto, false));
-        if (createdTheme == null) {
-            logger.log(Priority.ERROR, "ThemeService.addTheme returns NULL..");
+        logger.log(Priority.INFO,"API CALL: CreateTheme");
+        Theme createdTheme = themeService.addTheme(themeDto.toTheme());
+        if(createdTheme==null){
+            logger.log(Priority.ERROR,"ThemeService.addTheme returns NULL..");
             return ResponseEntity.badRequest().build();
-        } else {
-            logger.log(Priority.INFO, "Successfully created new Theme");
-            return ResponseEntity.ok().body(DtoConverter.toThemeDto(createdTheme, false));
+        }else{
+            logger.log(Priority.INFO,"Successfully created new Theme");
+            return ResponseEntity.ok().body(ThemeDto.fromTheme(createdTheme));
         }
     }
 
-    @RequestMapping(value = "api/public/subthemes/{themeId}", method = RequestMethod.POST)
-    public ResponseEntity<SubThemeDto> CreateSubTheme(@Valid @RequestBody SubThemeDto subThemeDto, @PathVariable(name = "themeId") long themeId) {
+    @RequestMapping(value = "api/public/subthemes/{themeId}",method = RequestMethod.POST)
+//    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<SubThemeDto> CreateSubTheme(@Valid @RequestBody SubThemeDto subThemeDto, @PathVariable(name = "themeId") Long themeId){
+        if(themeId==new Long(0)){
+            themeId=null;
+        }
         System.out.println("CALL RECEICED: CreateSubTheme");
-        logger.log(Priority.INFO, "API CALL: CreateSubTheme");
-        SubTheme subTheme = DtoConverter.toSubTheme(subThemeDto, false);
-        SubTheme createdSubTheme = themeService.addSubThemeByThemeId(DtoConverter.toSubTheme(subThemeDto, false), themeId);
-        if (createdSubTheme != null) {
-            return ResponseEntity.ok().body(DtoConverter.toSubThemeDto(createdSubTheme, false));
-        } else {
+        logger.log(Priority.INFO,"API CALL: CreateSubTheme");
+
+        SubTheme createdSubTheme = themeService.addSubThemeByThemeId(subThemeDto.toSubTheme(),themeId);
+
+        if(createdSubTheme!=null){
+            return ResponseEntity.ok().body(SubThemeDto.fromSubTheme(createdSubTheme));
+        }else{
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
@@ -148,165 +149,99 @@ public class ThemeRestController {
     //POST-METHODS
     //PUT-METHODS
     @RequestMapping(value = "api/public/theme/{themeId}", method = RequestMethod.PUT)
-    public ResponseEntity<ThemeDto> updateTheme(@PathVariable long themeId, @Valid @RequestBody ThemeDto theme) {
-        System.out.println("CALL RECEIVED: updateTheme: " + themeId);
-        logger.log(Priority.INFO, "API CALL: updateTheme: " + themeId);
-        try {
-            Theme foundTheme = themeService.getThemeById(themeId);
-            foundTheme.setDescription(theme.getDescription());
-            foundTheme.setName(theme.getName());
-            Theme updatedTheme = themeService.editTheme(foundTheme);
-            logger.log(Priority.INFO, "Updated Theme for id: " + themeId);
-            return ResponseEntity.ok().body(DtoConverter.toThemeDto(updatedTheme, false));
-        } catch (ThemeRepositoryException e) {
-            logger.log(Priority.ERROR, "No theme found for Id: " + themeId);
+//    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<ThemeDto> updateTheme(@PathVariable Long themeId, @Valid @RequestBody ThemeDto theme){
+        System.out.println("CALL RECEIVED: updateTheme: "+themeId);
+        logger.log(Priority.INFO,"API CALL: updateTheme: "+themeId);
+
+        Theme foundTheme = themeService.getThemeById(themeId);
+        if(foundTheme == null){
+            logger.log(Priority.ERROR,"No theme found for Id: "+themeId);
             return ResponseEntity.notFound().build();
         }
+        foundTheme.setDescription(theme.getDescription());
+        foundTheme.setName(theme.getName());
+        Theme updatedTheme=themeService.editTheme(foundTheme);
 
-
+        logger.log(Priority.INFO,"Updated Theme for id: "+themeId);
+        return ResponseEntity.ok().body(ThemeDto.fromTheme(updatedTheme));
     }
 
-    @RequestMapping(value = "api/public/subtheme/{subThemeId}", method = RequestMethod.PUT)
-    public ResponseEntity<SubThemeDto> updateSubTheme(@PathVariable long subThemeId, @Valid @RequestBody SubThemeDto dto) {
-        System.out.println("CALL RECEIVED: updateSubTheme: " + subThemeId);
-        logger.log(Priority.INFO, "API CALL: UpdateSubTheme: " + subThemeId);
+    @RequestMapping(value = "api/public/subtheme/{subThemeId}",method = RequestMethod.PUT)
+//    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<SubThemeDto> updateSubTheme(@PathVariable Long subThemeId, @Valid @RequestBody SubThemeDto dto){
+        System.out.println("CALL RECEIVED: updateSubTheme: "+subThemeId);
+        logger.log(Priority.INFO, "API CALL: UpdateSubTheme: "+subThemeId);
         SubTheme foundSubTheme = themeService.getSubThemeById(subThemeId);
-        if (foundSubTheme == null) {
-            logger.log(Priority.WARN, "No Theme found for Id: " + subThemeId);
+        if(foundSubTheme==null){
+            logger.log(Priority.WARN,"No Theme found for Id: "+subThemeId);
             return ResponseEntity.notFound().build();
         }
         foundSubTheme.setSubThemeName(dto.getSubThemeName());
         foundSubTheme.setSubThemeDescription(dto.getSubThemeDescription());
-        foundSubTheme.setTheme(DtoConverter.toTheme(dto.getTheme(), false));
+        foundSubTheme.setTheme(dto.getTheme().toTheme());
         SubTheme updatedTheme = themeService.editSubtheme(foundSubTheme);
-        if (updatedTheme == null) {
-            logger.log(Priority.ERROR, "Updated Theme is NULL");
+        if(updatedTheme==null){
+            logger.log(Priority.ERROR,"Updated Theme is NULL");
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
-        return ResponseEntity.ok().body(DtoConverter.toSubThemeDto(updatedTheme, false));
+        return ResponseEntity.ok().body(SubThemeDto.fromSubTheme(updatedTheme));
     }
-
     //PUT-METHODS
     //DELET-METHODS
-    @RequestMapping(value = "api/public/theme/{themeId}", method = RequestMethod.DELETE)
-    public ResponseEntity<ThemeDto> deleteThemeByThemeId(@PathVariable Long themeId) {
-        System.out.println("CALLED deleteThemeByThemeId: " + themeId);
-        Theme deletedTheme = null;
-        try {
-            deletedTheme = themeService.removeThemeById(themeId);
-            return ResponseEntity.ok().body(DtoConverter.toThemeDto(deletedTheme, false));
-        } catch (ThemeRepositoryException e) {
+    @RequestMapping(value = "api/public/theme/{themeId}",method = RequestMethod.DELETE)
+    //   @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<ThemeDto> deleteThemeByThemeId(@PathVariable Long themeId){
+        System.out.println("CALLED deleteTheByThemeId: "+themeId);
+        try{
+            Theme deletedTheme=themeService.removeThemeById(themeId);
+            return ResponseEntity.ok().body(ThemeDto.fromTheme(deletedTheme));
+        }catch (ThemeServiceException e){
             return ResponseEntity.notFound().build();
         }
-
 
     }
 
     @RequestMapping(value = "api/public/theme", method = RequestMethod.DELETE)
-    public ResponseEntity<ThemeDto> deleteThemeByName(@RequestParam(value = "name") String name) {
+    //  @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<ThemeDto> deleteThemeByName(@RequestParam(value = "name") String name){
         Theme foundTheme = themeService.getThemeByName(name);
-        if (foundTheme == null) {
+        if(foundTheme==null){
             return ResponseEntity.notFound().build();
         }
         themeService.removeThemeById(foundTheme.getThemeId());
-        return ResponseEntity.ok().body(DtoConverter.toThemeDto(foundTheme, false));
+        return ResponseEntity.ok().body(ThemeDto.fromTheme(foundTheme));
     }
 
     @RequestMapping(value = "api/public/themes", method = RequestMethod.DELETE)
-    public ResponseEntity<String> deleteThemes() {
+//    @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<String> deleteThemes(){
         themeService.removeAllThemes();
         return ResponseEntity.ok().body("All good!");
     }
 
-    @RequestMapping(value = "api/public/subthemes/{themeId}", method = RequestMethod.DELETE)
-    public ResponseEntity<List<SubThemeDto>> deleteSubThemesByThemeId(@PathVariable(name = "themeId") long themeId) {
-        List<SubTheme> deletedSubThemes = null;
-        try {
+    @RequestMapping(value = "api/public/subthemes/{themeId}",method = RequestMethod.DELETE)
+    //   @PreAuthorize("hasRole('ROLE_USER')")
+    public ResponseEntity<List<SubThemeDto>> deleteSubThemesByThemeId(@PathVariable(name = "themeId")Long themeId){
+        if(themeId==new Long(0)){
+            themeId=null;
+        }
+        List<SubTheme> deletedSubThemes=null;
+        try{
             deletedSubThemes = themeService.removeSubThemesByThemeId(themeId);
-        } catch (ThemeRepositoryException tse) {
+        }catch (ThemeServiceException tse){
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok().body(deletedSubThemes.stream().map(st -> DtoConverter.toSubThemeDto(st, false)).collect(Collectors.toList()));
+        return ResponseEntity.ok().body(deletedSubThemes.stream().map(st-> SubThemeDto.fromSubTheme(st)).collect(Collectors.toList()));
     }
     //DELETE-METHODS
-
     /**
      * Temporary Testing Method to ensure clean database data.
-     *
      * @return
      */
 
-    @RequestMapping(value = "api/public/cards", method = RequestMethod.POST)
-    public ResponseEntity<CardDto> createCard(@Valid @RequestBody CardDto card) {
-        try {
-            Card cardAdded = themeService.addCard(DtoConverter.toCard(card, false));
-            return ResponseEntity.ok().body(DtoConverter.toCardDto(cardAdded, false));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
-    }
 
-    @RequestMapping(value = "/api/public/cards", method = RequestMethod.GET)
-    public ResponseEntity<List<CardDto>> getAllCards() {
-        try {
-            List<CardDto> cards = themeService.getAllCards().stream().map(c -> DtoConverter.toCardDto(c, false)).collect(Collectors.toList());
-            return ResponseEntity.ok().body(cards);
-        } catch (ThemeRepositoryException e) {
-            e.printStackTrace();
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
-    }
 
-    @RequestMapping(value = "/api/public/card/{cardId}", method = RequestMethod.GET)
-    public ResponseEntity<Card> getCardById(@PathVariable long cardId) {
-        try {
-            Card card = themeService.getCardById(cardId);
-            return ResponseEntity.ok(card);
-        } catch (ThemeRepositoryException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @RequestMapping(value = "/api/public/subtheme/{subThemeId}/cards/{cardId}", method = RequestMethod.POST)
-    public ResponseEntity<SubTheme> addCardToSubTheme(@PathVariable(name = "subThemeId") long subThemeId, @PathVariable(name = "cardId") long cardId) {
-        try {
-            SubTheme updatedSubTheme = themeService.addCardToSubTheme(cardId, subThemeId);
-            SubTheme getSubtheme = themeService.getSubThemeById(subThemeId);
-            return ResponseEntity.ok().body(updatedSubTheme);
-        } catch (ThemeRepositoryException te) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
-    }
-
-    @RequestMapping(value = "/api/public/cards/", method = RequestMethod.PUT)
-    public ResponseEntity<Card> updateCard(@Valid @RequestBody Card card) {
-        try {
-            Card updatedCard = themeService.editCard(card);
-            return ResponseEntity.ok(updatedCard);
-        } catch (ThemeRepositoryException e) {
-            e.printStackTrace();
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @RequestMapping(value = "/api/public/card/{cardId}", method = RequestMethod.DELETE)
-    public ResponseEntity<Card> deleteCardById(@PathVariable long cardId) {
-        try {
-            Card card = themeService.removeCardById(cardId);
-            return ResponseEntity.ok(card);
-        } catch (ThemeRepositoryException e) {
-            e.printStackTrace();
-            return ResponseEntity.notFound().build();
-        }
-    }
-    
     @GetMapping(value = "/api/private/users/{username}/connectedthemes")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     public ResponseEntity getConnectedThemes(@PathVariable String username, HttpServletRequest request){
@@ -328,44 +263,5 @@ public class ThemeRestController {
         return ResponseEntity.ok(themeJpas);
     }
 
-    @DeleteMapping("/api/private/sessions/{id}/users/{username}/remove")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
-    public ResponseEntity removeUserFromGameSession(@PathVariable Long id, @PathVariable String username, HttpServletRequest request){
-        GameSession gameSession = gameSessionService.getGameSessionWithId(id);
 
-        if(gameSession == null ){
-            ResponseEntity.status(HttpStatus.NO_CONTENT);
-        }
-
-        String organisatorName = gameSession.getHighestAccesLevelModerator();
-        List<String> subOrganisators = gameSession.getAllSubOrganisators();
-
-        boolean isOrganistor = authenticationHelperService.userIsAllowedToAccessResource(request, organisatorName);
-        boolean isSubOrganistor = false;
-
-        for(String s : subOrganisators){
-            if (authenticationHelperService.userIsAllowedToAccessResource(request, s)){
-                isSubOrganistor = true;
-                break;
-            }
-        }
-
-        if(!isOrganistor && !isSubOrganistor){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        User userToRemoveFromSession = userService.findUserByUsername(username);
-
-        if(userToRemoveFromSession == null ){
-            ResponseEntity.status(HttpStatus.NO_CONTENT);
-        }
-
-//        GameSession savedGameSession = gameSessionService.addUserToGameSession(gameSession.getGameSessionId(), userToAddToSession);
-        boolean done = gameSessionService.removeUserFromGameSession(id, userToRemoveFromSession);
-        if(done) return ResponseEntity.ok().build();
-        return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
-    }
-
-    
-    
 }

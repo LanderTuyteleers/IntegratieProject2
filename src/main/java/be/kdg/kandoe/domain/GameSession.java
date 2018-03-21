@@ -2,6 +2,7 @@ package be.kdg.kandoe.domain;
 
 import be.kdg.kandoe.domain.user.User;
 import be.kdg.kandoe.dto.gameSession.CreateGameSessionDto;
+import be.kdg.kandoe.repository.jpa.ThemeJpa;
 import org.hibernate.annotations.Fetch;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -47,6 +48,11 @@ public class GameSession {
 
     @Column
     private String image = "default-session.png";
+
+
+    @ManyToOne
+    @JoinColumn(name = "session_themeId_PK")
+    private ThemeJpa themeForSession;
 
 
     public GameSession() {
@@ -218,4 +224,13 @@ public class GameSession {
         }
         return subOrganisators;
     }
+
+    public ThemeJpa getThemeForSession() {
+        return themeForSession;
+    }
+
+    public void setThemeForSession(ThemeJpa themeForSession) {
+        this.themeForSession = themeForSession;
+    }
+
 }

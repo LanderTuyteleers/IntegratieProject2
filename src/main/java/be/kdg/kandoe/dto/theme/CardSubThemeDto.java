@@ -1,7 +1,5 @@
 package be.kdg.kandoe.dto.theme;
 
-import be.kdg.kandoe.domain.theme.Card;
-
 public class CardSubThemeDto {
     private long cardSubThemeId;
     private CardDto card;

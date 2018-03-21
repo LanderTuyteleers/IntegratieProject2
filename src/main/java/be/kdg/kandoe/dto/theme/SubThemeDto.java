@@ -1,9 +1,7 @@
 package be.kdg.kandoe.dto.theme;
 
-import be.kdg.kandoe.dto.converter.DtoConverter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import be.kdg.kandoe.domain.theme.SubTheme;
+import be.kdg.kandoe.domain.theme.Theme;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -32,6 +30,13 @@ public class SubThemeDto {
         this.subThemeDescription = description;
         this.theme = theme;
         this.cards = cards;
+    }
+
+    public SubThemeDto(long subThemeId, ThemeDto theme, String subThemeName, String subThemeDescription){
+        this.subThemeId=subThemeId;
+        this.theme=theme;
+        this.subThemeName=subThemeName;
+        this.subThemeDescription=subThemeDescription;
     }
 
     public long getSubThemeId() {
@@ -79,4 +84,26 @@ public class SubThemeDto {
         return JSON;
     }
 
+    public SubTheme toSubTheme(){
+        SubTheme subTheme = new SubTheme();
+        subTheme.setSubThemeDescription(this.subThemeDescription);
+        subTheme.setSubThemeId(this.subThemeId);
+
+
+        if(this.theme!=null){
+            subTheme.setTheme(new Theme(this.theme));
+        }
+        subTheme.setSubThemeName(this.subThemeName);
+        return subTheme;
+    }
+
+    public static SubThemeDto fromSubTheme(SubTheme subTheme){
+        SubThemeDto newSubtheme=null;
+        if(subTheme.getTheme()!=null){
+            newSubtheme= new SubThemeDto(subTheme.getSubThemeId(), ThemeDto.fromTheme(subTheme.getTheme()),subTheme.getSubThemeName(),subTheme.getSubThemeDescription());
+        }else{
+            newSubtheme = new SubThemeDto(subTheme.getSubThemeId(),null,subTheme.getSubThemeName(),subTheme.getSubThemeDescription());
+        }
+        return newSubtheme;
+    }
 }

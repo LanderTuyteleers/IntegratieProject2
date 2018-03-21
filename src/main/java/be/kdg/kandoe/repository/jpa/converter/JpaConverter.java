@@ -4,15 +4,12 @@ import be.kdg.kandoe.domain.theme.Card;
 import be.kdg.kandoe.domain.theme.CardSubTheme;
 import be.kdg.kandoe.domain.theme.SubTheme;
 import be.kdg.kandoe.domain.theme.Theme;
-import be.kdg.kandoe.dto.converter.DtoConverter;
 import be.kdg.kandoe.repository.jpa.CardJpa;
 import be.kdg.kandoe.repository.jpa.CardSubThemeJpa;
 import be.kdg.kandoe.repository.jpa.SubThemeJpa;
 import be.kdg.kandoe.repository.jpa.ThemeJpa;
 import be.kdg.kandoe.service.exception.ConversionException;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public abstract class JpaConverter {

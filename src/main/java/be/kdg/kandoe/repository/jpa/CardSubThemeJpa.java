@@ -1,7 +1,5 @@
 package be.kdg.kandoe.repository.jpa;
 
-import be.kdg.kandoe.domain.theme.SubTheme;
-
 import javax.persistence.*;
 
 @Entity

@@ -144,7 +144,7 @@ public class UserRestController {
 
     @PostMapping("/api/private/users/{username}/updatepassword")
     @PreAuthorize("hasRole('ROLE_USER')")
-    public ResponseEntity updatePasswordOfUser(@PathVariable String username, @RequestBody UserDto changedUser,  HttpServletRequest request){
+    public ResponseEntity updatePasswordOfUser(@PathVariable String username, @RequestBody UserDto changedUser, HttpServletRequest request){
         User requestUser = userService.findUserByUsername(username);
 
         if (!authenticationHelperService.userIsAllowedToAccessResource(request, username)){

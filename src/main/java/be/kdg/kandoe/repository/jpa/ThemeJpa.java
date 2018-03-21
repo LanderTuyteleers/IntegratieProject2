@@ -1,21 +1,15 @@
 package be.kdg.kandoe.repository.jpa;
 
-import be.kdg.kandoe.domain.theme.SubTheme;
+import be.kdg.kandoe.domain.GameSession;
 import be.kdg.kandoe.domain.theme.Theme;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.*;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
-import javax.persistence.*;
 import javax.persistence.CascadeType;
+import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -39,6 +33,12 @@ public class ThemeJpa {
     @Fetch(FetchMode.SELECT)
     @JsonIgnore
     private List<SubThemeJpa> subThemes;
+
+    @OneToMany(targetEntity = GameSession.class,mappedBy = "themeForSession")
+    @Column
+//        @JsonIgnore
+    private List<GameSession> gameSessions = new ArrayList<>();
+
 
     public ThemeJpa() {
 
