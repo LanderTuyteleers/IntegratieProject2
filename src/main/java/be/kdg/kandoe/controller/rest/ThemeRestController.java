@@ -328,7 +328,44 @@ public class ThemeRestController {
         return ResponseEntity.ok(themeJpas);
     }
 
-    
+    @DeleteMapping("/api/private/sessions/{id}/users/{username}/remove")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity removeUserFromGameSession(@PathVariable Long id, @PathVariable String username, HttpServletRequest request){
+        GameSession gameSession = gameSessionService.getGameSessionWithId(id);
+
+        if(gameSession == null ){
+            ResponseEntity.status(HttpStatus.NO_CONTENT);
+        }
+
+        String organisatorName = gameSession.getHighestAccesLevelModerator();
+        List<String> subOrganisators = gameSession.getAllSubOrganisators();
+
+        boolean isOrganistor = authenticationHelperService.userIsAllowedToAccessResource(request, organisatorName);
+        boolean isSubOrganistor = false;
+
+        for(String s : subOrganisators){
+            if (authenticationHelperService.userIsAllowedToAccessResource(request, s)){
+                isSubOrganistor = true;
+                break;
+            }
+        }
+
+        if(!isOrganistor && !isSubOrganistor){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        User userToRemoveFromSession = userService.findUserByUsername(username);
+
+        if(userToRemoveFromSession == null ){
+            ResponseEntity.status(HttpStatus.NO_CONTENT);
+        }
+
+//        GameSession savedGameSession = gameSessionService.addUserToGameSession(gameSession.getGameSessionId(), userToAddToSession);
+        boolean done = gameSessionService.removeUserFromGameSession(id, userToRemoveFromSession);
+        if(done) return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
+    }
+
     
     
 }
