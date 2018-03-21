@@ -21,8 +21,13 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * Rest controller that handles all file uploads & file retrievals
+ */
+
 @RestController
 public class FileRestController implements HandlerExceptionResolver{
+
     private final UserService userService;
     private final AuthenticationHelperService authenticationHelperService;
     private final StorageService storageService;
@@ -34,13 +39,6 @@ public class FileRestController implements HandlerExceptionResolver{
         this.authenticationHelperService = authenticationHelperService;
         this.storageService = storageService;
         this.gameSessionService = gameSessionService;
-    }
-
-
-    @Override
-    public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
-
-        return null;
     }
 
     //Upload a profilepicture
@@ -59,6 +57,7 @@ public class FileRestController implements HandlerExceptionResolver{
 
         storageService.store(uploadFile);
         String filename = StringUtils.cleanPath(uploadFile.getOriginalFilename());
+        //Place the name of the file in the user object
         requestUser.setProfilePictureFileName(filename);
 
         userService.updateUserNoPassword(requestUser);
@@ -108,16 +107,6 @@ public class FileRestController implements HandlerExceptionResolver{
     @GetMapping("/api/private/users/{username}/sessions/{id}/image")
     @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<Resource> serveFile(@PathVariable String username, @PathVariable Long id, HttpServletRequest request){
-//        User requestUser = userService.findUserByUsername(username);
-
-//        if (!authenticationHelperService.userIsAllowedToAccessResource(request, username)){
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-//        };
-//
-//        if(requestUser == null){
-//            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-//        }
-
         GameSession gameSession = gameSessionService.getGameSessionWithId(id);
 
         Resource file = storageService.loadAsResource(gameSession.getImage());
@@ -141,4 +130,11 @@ public class FileRestController implements HandlerExceptionResolver{
         }
 
     }
+
+    @Override
+    public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
+        //error handeling for file uploads
+        return null;
+    }
+
 }

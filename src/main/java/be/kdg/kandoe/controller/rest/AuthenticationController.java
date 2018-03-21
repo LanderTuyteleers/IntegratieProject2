@@ -17,6 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * Rest controller that handles the login and registration of users
+ */
+
 @RestController
 @CrossOrigin(origins = "https://angularkandoe.herokuapp.com")
 public class AuthenticationController {

@@ -1,5 +1,9 @@
 package be.kdg.kandoe.security.auth;
 
+/**
+ * Wrapper class for authentication requests
+ * Contains the username and the password
+ */
 
 public class JwtAuthenticationRequest {
     private String username;

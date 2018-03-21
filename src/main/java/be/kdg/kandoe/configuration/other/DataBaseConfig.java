@@ -9,14 +9,13 @@ import org.springframework.context.annotation.Primary;
 import javax.sql.DataSource;
 
 /**
- * @author Lander
- * @since 6/03/2018
+ * Class used to create a DataSource object with the provided spring datasource from the config
  */
 public class DataBaseConfig {
     @Configuration
     public class DatabaseConfig {
         @Bean
-        @Primary
+        @Primary //Indicates that a bean should be given preference when multiple candidates are qualified to autowire a single-valued dependency.
         @ConfigurationProperties(prefix = "spring.datasource")
         public DataSource dataSource() {
             return DataSourceBuilder.create().build();

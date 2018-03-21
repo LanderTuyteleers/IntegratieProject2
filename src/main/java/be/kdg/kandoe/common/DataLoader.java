@@ -8,6 +8,10 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
+/**
+ * This class is used for placing initial data into the database
+ */
+
 @Component
 public class DataLoader implements ApplicationListener<ApplicationReadyEvent> {
     @Autowired

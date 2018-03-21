@@ -15,7 +15,7 @@ import java.util.List;
 
 @Service
 @Primary
-public class GameSessionServiceImpl implements GameSessionService {
+public class GameSessionServiceImpl implements GameSessionService{
 
 
     private UserService userService;

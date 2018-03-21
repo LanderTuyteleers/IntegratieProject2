@@ -1,5 +1,11 @@
 package be.kdg.kandoe.domain.user;
 
+/**
+ * Wrapper class that holds the state of a token
+ * access_toke --> the actual string representation of a token
+ * expires_in --> the amount of seconds the token is valid (since it's initialization)
+ */
+
 public class UserTokenState {
     private String access_token;
     private Long expires_in;

@@ -3,6 +3,10 @@ package be.kdg.kandoe.security.auth;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 
+/**
+ * Wrapper class that contains the token and the authority
+ */
+
 public class TokenBasedAuthentication extends AbstractAuthenticationToken {
 
     private String token;

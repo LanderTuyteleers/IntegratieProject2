@@ -22,6 +22,10 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * Service class for user authentication
+ */
+
 @Service
 @Primary
 public class AuthenticationHelperServiceImpl implements AuthenticationHelperService {
@@ -50,6 +54,7 @@ public class AuthenticationHelperServiceImpl implements AuthenticationHelperServ
     public UserTokenState authenticate(JwtAuthenticationRequest authenticationRequest, Device device){
 
         try{
+            // Use the username and password and place it in a secure UsernamePasswordAuthenticationToken. This object can then be used to authenticate a user.
             final Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             authenticationRequest.getUsername(),
@@ -57,18 +62,21 @@ public class AuthenticationHelperServiceImpl implements AuthenticationHelperServ
                     )
             );
 
+            // Place the rights of the user in the context
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // token creation
+            //Retrieve the user information and convert it to a user
             User user = (User)authentication.getPrincipal();
 
-            //Fill in roles
+            //Fill in the roles of a user
             StringBuilder roles = new StringBuilder();
             user.getAuthorities().forEach(role -> roles.append(role.getAuthority() + " "));
 
-            String jws = tokenHelper.generateToken( user.getUsername(), device, roles.toString());
+            //Generate a token for a user
+            String jws = tokenHelper.generateToken(user.getUsername(), device, roles.toString());
             int expiresIn = tokenHelper.getExpiredIn(device);
 
+            //Wrap the state of the token in custom wrapper clas
             return new UserTokenState(jws, expiresIn);
 
         }catch (AuthenticationException e){
@@ -89,6 +97,7 @@ public class AuthenticationHelperServiceImpl implements AuthenticationHelperServ
 
     @Override
     public boolean register(UserDto userDto){
+        //Check if username or email are already used
         boolean usernameGood = this.checkUsernameCredentials(userDto.getUsername());
         boolean emailGood = this.checkEmailCredentials(userDto.getEmail());
 
@@ -125,9 +134,9 @@ public class AuthenticationHelperServiceImpl implements AuthenticationHelperServ
         return false;
     }
 
-    //usernameClaimedUser is the username that was provided via url
     @Override
     public boolean userIsAllowedToAccessResource(HttpServletRequest request, String usernameClaimedUser) {
+        //usernameClaimedUser is the username that was provided through the url
         String usernameToken = getUsernameFromTokem(request);
         User tokenUser = userService.findUserByUsername(usernameToken);
 
@@ -136,7 +145,7 @@ public class AuthenticationHelperServiceImpl implements AuthenticationHelperServ
         boolean isAdmin = isAdmin(tokenUser);
 
         //When an admin makes a request it is allowed
-        //When it's not an admin the username from the path has to be the same as the one from the token
+        //When it's not an admin, then the username from the path has to be the same as the one from the token
         if(!isAdmin && !tokenUser.getUsername().equalsIgnoreCase(usernameClaimedUser)){
             return false;
         }

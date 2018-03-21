@@ -25,11 +25,12 @@ public class StorageServiceImpl implements StorageService {
 
     private Path rootLocation;
 
-    private String location = ""; //Here we will store files
+    private String location = ""; //Files will be stored here
     private String relativePathToResources = "/src/main/resources/profilePictures/";
 
 
     public StorageServiceImpl() {
+        //Dummy file to retrieve path information
         File currentDirFile = new File(".");
         String helper = currentDirFile.getAbsolutePath();
         try{
@@ -53,17 +54,19 @@ public class StorageServiceImpl implements StorageService {
 
     @Override
     public void store(MultipartFile file) {
+        //Clean version of the filename
         String filename = StringUtils.cleanPath(file.getOriginalFilename());
         try {
             if (file.isEmpty()) {
                 throw new StorageServiceException("Failed to store empty file " + filename);
             }
             if (filename.contains("..")) {
-                // This is a security check
+                // This is a security check for breaking out of the current directory
                 throw new StorageServiceException(
                         "Cannot store file with relative path outside current directory "
                                 + filename);
             }
+
             Files.copy(file.getInputStream(), this.rootLocation.resolve(filename),
                     StandardCopyOption.REPLACE_EXISTING);
         }
@@ -95,7 +98,10 @@ public class StorageServiceImpl implements StorageService {
     @Override
     public Resource loadAsResource(String filename) {
         try {
+            //Load the filename from the storage path
             Path file = load(filename);
+
+            //Try to load the url as a resource
             Resource resource = new UrlResource(file.toUri());
             if (resource.exists() || resource.isReadable()) {
                 return resource;

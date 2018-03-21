@@ -15,6 +15,11 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.Enumeration;
 
+/**
+ * Helper class for token creation and data retrieval
+ *
+ */
+
 @Component
 public class TokenHelper {
 
@@ -42,6 +47,7 @@ public class TokenHelper {
     TimeProvider timeProvider;
 
     private SignatureAlgorithm SIGNATURE_ALGORITHM = SignatureAlgorithm.HS512;
+
 
     public String getUsernameFromToken(String token) {
         String username;
@@ -155,15 +161,13 @@ public class TokenHelper {
     }
 
     public String getToken( HttpServletRequest request ) {
-        /**
-         *  Getting the token from Authentication header
-         *  e.g Bearer your_token
-         */
+        // Getting the token from Authentication header --> "Authorization": "Bearer your_token"
 
         Enumeration<String> names = request.getHeaderNames();
 
         String authHeader = getAuthHeaderFromHeader( request );
         if ( authHeader != null && authHeader.startsWith("Bearer ")) {
+            //Remove the "Bearer" part and return only the actual token string
             return authHeader.substring(7);
         }
 

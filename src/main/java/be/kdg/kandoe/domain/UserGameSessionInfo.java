@@ -6,6 +6,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
 import java.util.List;
 
+/**
+ * Model class that represents a session in a gamesession
+ * This class contains the info and settings of a user in a specific gamesession
+ * When a user is part of a GameSession it will be connected through a UserGameSessionInfo
+ */
+
 @Entity
 @Table
 public class UserGameSessionInfo {
@@ -35,6 +41,8 @@ public class UserGameSessionInfo {
     @JsonIgnore
     private GameSession gameSession;
 
+
+
     public UserGameSessionInfo() {
     }
 
@@ -45,6 +53,8 @@ public class UserGameSessionInfo {
         this.user = user;
         this.gameSession = gameSession;
     }
+
+
 
     public Long getUserGameSessionInfoId() {
         return userGameSessionInfoId;

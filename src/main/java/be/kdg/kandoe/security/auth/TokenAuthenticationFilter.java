@@ -15,6 +15,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * Filter class for token filtration
+ *
+ */
+
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
     private final Log logger = LogFactory.getLog(this.getClass());
@@ -39,13 +44,12 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         String username;
         String authToken = tokenHelper.getToken(request);
 
-
         if (authToken != null) {
-            // get username from token
+            // get username & claims from token
             username = tokenHelper.getUsernameFromToken(authToken);
             Claims claims = tokenHelper.getAllClaimsFromToken(authToken);
             if (username != null) {
-                // get user
+                // load the user details
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 if (tokenHelper.validateToken(authToken, userDetails)) {
                     // create authentication

@@ -21,6 +21,8 @@ public class WebConfig extends WebMvcConfigurerAdapter{
 
     @Bean(name = "multipartResolver")
     public CommonsMultipartResolver multipartResolver() {
+        //https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/web/multipart/MultipartResolver.html
+        //https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/web/multipart/commons/CommonsMultipartResolver.html
         CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
         multipartResolver.setMaxUploadSize(maxUploadSize);
         return multipartResolver;

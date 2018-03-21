@@ -7,7 +7,10 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 
 
-//Will be used for statistics
+/**
+ * This is a wrapper class for retrieving the type of device used to connect to the server (used for statistics)
+ * Possible values: Normal, Mobile, Tablet
+ */
 @Component
 public class DeviceProvider {
 

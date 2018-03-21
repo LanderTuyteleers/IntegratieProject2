@@ -32,7 +32,7 @@ public class SubThemeDto {
         this.cards = cards;
     }
 
-    public SubThemeDto(long subThemeId, ThemeDto theme, String subThemeName, String subThemeDescription){
+    public SubThemeDto(long subThemeId,ThemeDto theme,String subThemeName,String subThemeDescription){
         this.subThemeId=subThemeId;
         this.theme=theme;
         this.subThemeName=subThemeName;
@@ -100,7 +100,7 @@ public class SubThemeDto {
     public static SubThemeDto fromSubTheme(SubTheme subTheme){
         SubThemeDto newSubtheme=null;
         if(subTheme.getTheme()!=null){
-            newSubtheme= new SubThemeDto(subTheme.getSubThemeId(), ThemeDto.fromTheme(subTheme.getTheme()),subTheme.getSubThemeName(),subTheme.getSubThemeDescription());
+            newSubtheme= new SubThemeDto(subTheme.getSubThemeId(),ThemeDto.fromTheme(subTheme.getTheme()),subTheme.getSubThemeName(),subTheme.getSubThemeDescription());
         }else{
             newSubtheme = new SubThemeDto(subTheme.getSubThemeId(),null,subTheme.getSubThemeName(),subTheme.getSubThemeDescription());
         }

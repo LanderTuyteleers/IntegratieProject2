@@ -5,12 +5,16 @@ import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
 
+/**
+ * Model class that represents the authority (authentication) of a user
+ */
+
 @Entity
 @Table
 public class Authority implements GrantedAuthority{
     @Id
-    @Column(columnDefinition = "serial")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(columnDefinition = "serial") //datatype
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //Indicates that the persistence provider must assign primary keys for the entity using a database identity column.
     private Long id;
 
     @Column

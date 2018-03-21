@@ -13,12 +13,16 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Model class that represents a user
+ */
+
 @Entity
 @Table(name = "USER_ENTITY")
 public class User implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //Indicates that the persistence provider must assign primary keys for the entity using a database identity column.
     @Column(nullable = false, name = "user_id")
     private long userId;
 
@@ -42,7 +46,6 @@ public class User implements UserDetails {
 
     @Column(nullable = false)
     private int year;
-
 
     @Column(nullable = false)
     private String encryptedPassword;
@@ -107,6 +110,8 @@ public class User implements UserDetails {
     public void addGameSessionInfo(UserGameSessionInfo userGameSessionInfo){
         this.gameSessionInfos.add(userGameSessionInfo);
     }
+
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

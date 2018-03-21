@@ -10,6 +10,10 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Model class that represents a kandoe game session
+ */
+
 @Entity
 @Table()
 public class GameSession {

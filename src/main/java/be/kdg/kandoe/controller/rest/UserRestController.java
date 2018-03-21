@@ -18,6 +18,10 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Rest controller that handles all actions concerning a user
+ */
+
 @RestController
 @CrossOrigin(origins = "https://angularkandoe.herokuapp.com")
 public class UserRestController {
@@ -101,12 +105,6 @@ public class UserRestController {
         return ResponseEntity.ok().body(requestUserDto);
     }
 
-    //CREATE USER
-//    @PostMapping("/api/private/users")
-//    public User createUser(@Valid @RequestBody User user){
-//        return userService.addUser(user);
-//    }
-
 
     //UPDATE USER
     @PutMapping("/api/private/users/{username}")
@@ -129,7 +127,7 @@ public class UserRestController {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
 
-
+        //
         requestUser.setFirstName(changedUser.getFirstName());
         requestUser.setLastName(changedUser.getLastName());
         requestUser.setGender(changedUser.getGender());
@@ -161,23 +159,5 @@ public class UserRestController {
 
         return ResponseEntity.ok().build();
     }
-
-
-
-    //DELETE
-//    @DeleteMapping("api/private/users/{userId}")
-//    @PreAuthorize("hasRole('ROLE_ADMIN')")
-//    public ResponseEntity<User> deleteUser(@PathVariable Long userId){
-//        User user = userService.findUserById(userId);
-//
-//        if(user == null){
-//            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-//        }
-//
-//        userService.deleteUser(userId);
-//        return ResponseEntity.ok().build();
-//    }
-
-
 
 }

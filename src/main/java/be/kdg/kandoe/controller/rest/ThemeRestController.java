@@ -27,6 +27,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Rest controller that handles all actions concerning a Theme
+ */
+
 @RestController
 public class ThemeRestController {
     private final Logger logger = Logger.getLogger(ThemeRestController.class);
@@ -235,14 +239,12 @@ public class ThemeRestController {
         return ResponseEntity.ok().body(deletedSubThemes.stream().map(st-> SubThemeDto.fromSubTheme(st)).collect(Collectors.toList()));
     }
     //DELETE-METHODS
-    /**
-     * Temporary Testing Method to ensure clean database data.
-     * @return
-     */
 
 
-    @RequestMapping(value = "/api/private/users/{username}/connectedthemes",method = RequestMethod.GET)
-    @PreAuthorize("hasRole('ROLE_USER')")
+
+
+    @GetMapping("/api/private/users/{username}/connectedthemes")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     public ResponseEntity getConnectedThemes(@PathVariable String username, HttpServletRequest request){
         User requestUser = userService.findUserByUsername(username);
 
